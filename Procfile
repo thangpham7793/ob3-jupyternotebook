@@ -1,1 +1,1 @@
-web: voila --port=$PORT --no-browser ob3-visualized.ipynb
+web: voila --port=$PORT --no-browser ob3-visualized.ipynb --VoilaConfiguration.extension_language_mapping='{".py": "python", ".jl": "julia"}'
