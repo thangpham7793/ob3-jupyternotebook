@@ -9,8 +9,10 @@ system = print(platform.system())
 print(getcwd())
 path_to_bundle = ''
 if system == 'Linux':
+  print('True')
   path_to_bundle = '/app/secure-connect-cassandra-test.zip'
 else:
+  print('False')
   path_to_bundle = Template('${current_dir}\secure-connect-cassandra-test.zip').substitute(current_dir=getcwd())
 
 print(path_to_bundle)
