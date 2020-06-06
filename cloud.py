@@ -6,7 +6,7 @@ from os import getcwd
 import platform
 
 system = print(platform.system())
-print(getcwd())
+print(system == 'Linux')
 path_to_bundle = ''
 if system == 'Linux':
   print('True')
