@@ -6,9 +6,13 @@ Make a new folder and open a terminal from the folder.
 
 Type in: python -m venv ob3-notebook (or other name you prefer)
 
-Change directory into the virtual env (important!): cd ob3-notebook
+Change directory into the virtual env (important!): 
 
-Activate your virtual env (important!): source scripts/activate
+cd ob3-notebook
+
+Activate your virtual env (important!): 
+
+source scripts/activate
 
 If you see (ob3-notebook) in the terminal then it's activated.
 
