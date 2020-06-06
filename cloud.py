@@ -9,10 +9,12 @@ system = print(platform.system())
 print(getcwd())
 path_to_bundle = ''
 if system == 'Linux':
-  path_to_bundle = Template('/app/secure-connect-cassandra-test.zip').substitute(current_dir=getcwd())
+  path_to_bundle = '/app/secure-connect-cassandra-test.zip'
 else:
   path_to_bundle = Template('${current_dir}\secure-connect-cassandra-test.zip').substitute(current_dir=getcwd())
 
+print(path_to_bundle)
+  
 cloud_config = {
   'secure_connect_bundle': path_to_bundle
 }
