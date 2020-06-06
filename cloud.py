@@ -3,9 +3,9 @@ from cassandra.auth import PlainTextAuthProvider
 from pandas import DataFrame
 from string import Template
 from os import getcwd
-import platform
+from os import path
 
-path_to_bundle = '/app/secure-connect-cassandra-test.zip'
+path_to_bundle = path.join(getcwd(), 'secure-connect-cassandra-test.zip')
   
 cloud_config = {
   'secure_connect_bundle': path_to_bundle
