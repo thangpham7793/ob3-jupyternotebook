@@ -23,4 +23,3 @@ def make_queries_get_df (query):
   rows = session.execute(query)
   return to_df(rows)
 
-print(select_all_as_df('component', '1'))
