@@ -1,7 +1,5 @@
 from cassandra.cluster import Cluster
 from cassandra.auth import PlainTextAuthProvider
-from pandas import DataFrame
-from string import Template
 from os import getcwd
 from os import path
 
