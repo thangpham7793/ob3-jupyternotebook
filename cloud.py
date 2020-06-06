@@ -3,8 +3,15 @@ from cassandra.auth import PlainTextAuthProvider
 from pandas import DataFrame
 from string import Template
 from os import getcwd
+import platform
 
-path_to_bundle = Template('${current_dir}\secure-connect-cassandra-test.zip').substitute(current_dir=getcwd())
+system = print(platform.system())
+print(getcwd())
+path_to_bundle = ''
+if system == 'Linux':
+  path_to_bundle = Template('${current_dir}/secure-connect-cassandra-test.zip').substitute(current_dir=getcwd())
+else:
+  path_to_bundle = Template('${current_dir}\secure-connect-cassandra-test.zip').substitute(current_dir=getcwd())
 
 cloud_config = {
   'secure_connect_bundle': path_to_bundle
