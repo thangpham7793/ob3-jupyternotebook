@@ -1,8 +1,11 @@
 import plotly.express as px
 
-def quick_sunburst (df):
+
+def quick_sunburst (df, maxdepth=-1):
     columns_list = list(df.columns) 
-    return px.sunburst(df, path=columns_list[0:-1], values=columns_list[-1])
+    return px.sunburst(df, path=columns_list[0:-1], 
+                           values=columns_list[-1], 
+                           maxdepth=maxdepth)
 
 def filter_count_by_name(df, name):
     filt = (df['author_full_name'] == name)
@@ -14,3 +17,6 @@ def filter_count_by_name(df, name):
                     labels = {'author_full_name': name},
                     title= title,
                     width=900)
+
+
+
