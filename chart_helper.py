@@ -1,6 +1,5 @@
 import plotly.express as px
 
-
 def quick_sunburst (df, maxdepth=-1):
     columns_list = list(df.columns) 
     return px.sunburst(df, path=columns_list[0:-1], 
