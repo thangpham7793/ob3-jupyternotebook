@@ -1,5 +1,7 @@
 from cloud import session
 from pandas import DataFrame
+import pandas as pd
+from cassandra import ReadTimeout
 import asyncio
 
 # NOTE: execute SELECT * in a particular session on a given table
@@ -20,7 +22,6 @@ def select_all_as_df (table_name, limit = -1):
   rows = select_all_from(table_name, limit)
   return to_df(rows)
 
-async def make_queries_get_df (query):
-  rows = session.execute(query)
+def make_queries_get_df (query):
+  rows = session.execute(query, timeout=None)
   return to_df(rows)
-

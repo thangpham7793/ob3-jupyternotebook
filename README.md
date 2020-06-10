@@ -34,3 +34,5 @@ pip3 install -r requirements.txt
 Once the installation is finished, open the jupyternotebook inside the folder and run the SET UP cell. 
 It should just run fine unless there's an error. 
 Next, please follow the 2 examples and afterward you can start working with Cassandra inside this Jupyternotebook!
+
+#web: voila --port=$PORT --no-browser ob3-visualized.ipynb --strip_sources=False

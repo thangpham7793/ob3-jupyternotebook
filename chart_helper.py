@@ -38,6 +38,7 @@ def make_login_chart(df, title, association=None, status=None, frequency='d', ch
       data = df
     else:
       data = df[filters]
+    data['date'] = data['date'].apply(lambda x: pd.to_datetime(x.date()))
     total_logins_by_frequency = data.set_index('date').resample(frequency).count().reset_index()
     total_logins_by_frequency = total_logins_by_frequency.rename(columns = {'status' : 'number of logins'})
 
