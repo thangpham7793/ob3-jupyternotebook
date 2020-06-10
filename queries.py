@@ -1,5 +1,6 @@
 from cloud import session
 from pandas import DataFrame
+import asyncio
 
 # NOTE: execute SELECT * in a particular session on a given table
 def select_all_from(table_name, limit = -1):
@@ -19,7 +20,7 @@ def select_all_as_df (table_name, limit = -1):
   rows = select_all_from(table_name, limit)
   return to_df(rows)
 
-def make_queries_get_df (query):
+async def make_queries_get_df (query):
   rows = session.execute(query)
   return to_df(rows)
 
