@@ -6,7 +6,7 @@ from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
 #helper-functions
-from chart_helper import make_login_chart
+import chart_helper
 
 #Cassandra-related
 from cloud import session
@@ -96,6 +96,7 @@ app.layout = html.Div([
     
     #NOTE: status
     html.Div([
+      html.P('Status'),
       dcc.RadioItems(
         id='login-chart-status-filter',
         options=[{'label': i, 'value': i} for i in ['none', 'student', 'teacher', 'alumnus']],
@@ -107,9 +108,10 @@ app.layout = html.Div([
     ),
     #NOTE: association
     html.Div([
+      html.P('Association'),
       dcc.Dropdown(
         id='login-chart-association-filter',
-        options=[{'label': i, 'value': i} for i in ['none', 'independent', 'uniA', 'uniB', 'uniC']],
+        options=[{'label': i, 'value': i} for i in ['none', 'uniA', 'uniB', 'uniC']],
         value='none',
       )    
     ],
@@ -117,6 +119,19 @@ app.layout = html.Div([
     ),
 
     html.Div([
+      html.P('Frequency'),
+      dcc.RadioItems(
+        id='login-chart-frequency-filter',
+        options=[{'label': i, 'value': i} for i in ['daily', 'weekly']],
+        value='daily',
+        labelStyle={'display' : 'inline-block'}
+      )
+    ],
+    style={'width': '48%'}
+    ),
+    
+    html.Div([
+      html.P('Chart Type'),
       dcc.RadioItems(
         id='login-chart-chart-type-filter',
         options=[{'label': i, 'value': i} for i in ['bar', 'line', 'scatter']],
@@ -126,6 +141,7 @@ app.layout = html.Div([
     ],
     style={'width': '48%'}
     ),
+
     html.Div([
        dcc.Graph(id='user_activity_graph')
     ])
@@ -135,6 +151,7 @@ app.layout = html.Div([
   html.Div([
     #NOTE: association filter
     html.Div([
+      html.P('Association'),
       dcc.Dropdown(
         id='data-chart-association-filter',
         options=[{'label': i, 'value': i} for i in ['none', 'uniA', 'uniB', 'uniC']],
@@ -145,17 +162,16 @@ app.layout = html.Div([
     ),
 
     #NOTE: course filter
+    html.Div(id='data-chart-course-filter-container', 
+      children=[
+        html.P('Filter by Course'),
+        dcc.RadioItems(
+          id='data-chart-course-filter',
+          value='none',
+          labelStyle={'display' : 'inline-block'})
+      ],
+    ),
     html.Div([
-      html.P('Filter by Course'),
-      dcc.RadioItems(
-        id='data-chart-course-filter',
-        options=[{'label': i, 'value': i} for i in ['none','courseA', 'courseB', 'courseC']],
-        value='none',
-        labelStyle={'display' : 'inline-block'}
-      )
-    ]),
-    html.Div([
-      html.H3('file_usage_chart here!'),
       dcc.Graph(id='data_usage_graph')
     ])
   ]),
@@ -192,7 +208,7 @@ def clean_login_data(selected_month):
 def clean_usage_data(selected_month):
   rows = session.execute(admin_queries['data_usage_by_month'], [selected_month])
   df = DataFrame(rows)
-  print(df.head(10))
+  #print(df.to_json(date_format='iso'))
   return df.to_json(date_format='iso')
 
 #NOTE: reset status filter on month change
@@ -200,7 +216,7 @@ def clean_usage_data(selected_month):
   [Output('login-chart-status-filter', 'value')], 
   [Input('month-slider', 'value')]
 )
-def reset_association_filter(selected_month):
+def reset_login_chart_status_filter(selected_month):
   return ['none']
 
 #NOTE: reset association filter on month change
@@ -208,7 +224,7 @@ def reset_association_filter(selected_month):
   [Output('login-chart-association-filter', 'value')], 
   [Input('month-slider', 'value')]
 )
-def reset_association_filter(selected_month):
+def reset_login_chart_association_filter(selected_month):
   return ['none']
 
 #NOTE: reset chart type filter on month change
@@ -216,8 +232,23 @@ def reset_association_filter(selected_month):
   [Output('login-chart-chart-type-filter', 'value')], 
   [Input('month-slider', 'value')]
 )
-def reset_association_filter(selected_month):
+def reset_login_chart_chart_type_filter(selected_month):
   return ['bar']
+
+#NOTE: reset frequency filter on month change
+@app.callback(
+  Output('login-chart-frequency-filter', 'value'),
+  [Input('month-slider', 'value')]
+)
+def reset_login_chart_frequency_filter(selected_month):
+  return 'daily'
+
+@app.callback(
+  Output('data-chart-association-filter', 'value'),
+  [Input('month-slider', 'value')]
+)
+def reset_data_chart_association_filter(selected_month):
+  return 'none'
 
 #NOTE: update login chart on new filter
 @app.callback(
@@ -225,10 +256,11 @@ def reset_association_filter(selected_month):
   [Input('jsonified-login-df', 'children'),
    Input('login-chart-association-filter', 'value'),
    Input('login-chart-status-filter', 'value'),
-   Input('login-chart-chart-type-filter', 'value')],
+   Input('login-chart-chart-type-filter', 'value'),
+   Input('login-chart-frequency-filter', 'value')],
   [State('month-slider', 'value')]
 )
-def update_login_chart_on_filter_change(jsonified_login_df, association, status, chart_type, month):
+def update_login_chart_on_filter_change(jsonified_login_df, association, status, chart_type, frequency, month):
   if jsonified_login_df is None:
     print("Nothing to show for!")
     raise PreventUpdate
@@ -237,22 +269,57 @@ def update_login_chart_on_filter_change(jsonified_login_df, association, status,
     #print(df.head())
     if (association == 'none'):
       if (status == 'none'):
-        fig = make_login_chart(df, month, chart_type=chart_type)
+        fig = chart_helper.make_login_chart(df, month, frequency=frequency[0], chart_type=chart_type)
         #print(fig.data)
         return fig
       else:
-        fig = make_login_chart(df, month, status=status, chart_type=chart_type)
+        fig = chart_helper.make_login_chart(df, month, status=status, frequency=frequency[0], chart_type=chart_type)
         #print(fig.data)
         return fig
     else:
       if (status == 'none'):
-        fig = make_login_chart(df, month, association=association, chart_type=chart_type)
+        fig = chart_helper.make_login_chart(df, month, association=association, frequency=frequency[0], chart_type=chart_type)
         #print(fig.data)
         return fig
       else:
-        fig = make_login_chart(df, month, association, status, chart_type=chart_type)
+        fig = chart_helper.make_login_chart(df, month, association, status, frequency=frequency[0], chart_type=chart_type)
         #print(fig.data)
         return fig
+
+#NOTE: return new options for each association
+@app.callback(
+  Output('data-chart-course-filter', 'options'),
+  [Input('data-chart-association-filter', 'value')],
+  [State('jsonified-data-usage-df', 'children')]
+)
+def update_data_chart_course_filter(association, jsonified_data_usage_df):
+  if (jsonified_data_usage_df is None):
+    raise PreventUpdate
+  else:
+    df = decode_json_df(jsonified_data_usage_df)
+    options = chart_helper.get_course_filter_options(df, association)
+    return options
+
+#NOTE: display/hide course filter
+@app.callback(
+  Output('data-chart-course-filter-container', 'style'),
+  [Input('data-chart-association-filter', 'value')],
+  [State('jsonified-data-usage-df', 'children')]
+)
+def update_data_chart_course_filter(association, jsonified_data_usage_df):
+  if (jsonified_data_usage_df is None) or (association == 'none'):
+    return {'display' : 'none'}
+  else:
+    return {'display' : 'block'}
+
+
+#NOTE: set default value for newly created options
+@app.callback(
+  Output('data-chart-course-filter', 'value'),
+  [Input('data-chart-course-filter', 'options')]
+)
+def set_default_course_filter(options):
+  return 'none'
 
 #NOTE: update usage chart on new filter
 @app.callback(
@@ -264,20 +331,17 @@ def update_login_chart_on_filter_change(jsonified_login_df, association, status,
 )
 def update_file_usage_chart(jsonified_data_usage_df, association='none', course_id='none', month='none'):
     df = decode_json_df(jsonified_data_usage_df)
-    if (association == 'none' & course_id == 'none'):
-        fig = chart_helper.make_aggregate_data_usage_chart(df)
+    if (course_id == 'none') & (association == 'none'):
+        fig = chart_helper.make_aggregate_data_usage_chart(df, association, course_id, month)
+        return fig
+    elif (association != 'none') & (course_id == 'none'):
+        filtered_df = df[df['association'] == association]
+        fig = chart_helper.make_data_bar_chart_facetted_by(filtered_df, 'course_id', association, course_id, month)
         return fig
     else:
-        filtered_df = df[df['course_id'] == course_id]
-        fig = px.bar(filtered_df, 
-                x='course_id', y='size_in_mb',
-                color='type',
-                color_discrete_sequence=['blue', 'orange', 'green', 'red'],
-                hover_name='type', 
-                hover_data = {'paper_id' : False, 'type' : False, 'course_id' : False},
-                barmode='group', 
-                labels={'size_in_mb': 'Size in MB'}, 
-                facet_row='paper_id')
+        filt = (df['association'] == association) & (df['course_id'] == course_id)
+        filtered_df = df[filt]
+        fig = chart_helper.make_data_bar_chart_facetted_by(filtered_df, 'paper_id', association, course_id, month)
         return fig
 
 #NOTE: run app in debug mode
@@ -285,7 +349,8 @@ if __name__ == '__main__':
   app.run_server(debug=True)
 
 
-#TODO: add new_user_chart/query to dashboard/ 
-# refactor/test component tables
+#TODO: add new_user_chart/query to dashboard/ add new component chart
+# add count of new/old user on hover!
 # modularize each part of the layout/callbacks?
+# add highlight boxes
 # arrange a nice layout
