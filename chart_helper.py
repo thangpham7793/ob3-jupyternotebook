@@ -2,6 +2,8 @@ import plotly.express as px
 import pandas as pd
 import datetime
 from string import Template
+from pandas import DataFrame
+import json
 
 #dict for month conversion
 month_dict = {
@@ -19,11 +21,16 @@ month_dict = {
   '12': 'December'
 }
 
+
+
 def quick_sunburst (df, maxdepth=-1):
     columns_list = list(df.columns) 
     return px.sunburst(df, path=columns_list[0:-1], 
                            values=columns_list[-1], 
                            maxdepth=maxdepth)
+
+def decode_json_df(jsonified_df):
+    return DataFrame.from_dict(json.loads(jsonified_df))
 
 def filter_count_by_name(df, name):
     filt = (df['author_full_name'] == name)
@@ -47,6 +54,7 @@ def filters_for_login_chart(df, association=None, status=None):
     return df[(df['association'] == association) & (df['status'] == status)]
   else: 
     return df[(df['status'] == status)]
+
 
 def uppercase_first_letter_in_title(title):
   right_stripped_title = title.rstrip()
@@ -160,3 +168,30 @@ def get_course_filter_options(df, association):
   options = [{'label': i, 'value': i} for i in unique_vals]
   options = [{'label': 'none', 'value' : 'none'}] + options
   return options
+
+#ANCHOR: helpers for stat boxes
+
+#NOTE: return filtered df for login stat boxes
+def filter_data_by_association(df, association='none'):
+    if (association == 'none'): 
+        return df
+    else:
+        return df[df['association'] == association]
+
+def get_total_logins_by_association(jsonified_df, association):
+  df = decode_json_df(jsonified_df)
+  filtered_df = filter_data_by_association(df, association)
+  total_logins = len(filtered_df)
+  return total_logins
+
+def get_total_distinct_users_by_association(jsonified_df, association):
+  df = decode_json_df(jsonified_df)
+  filtered_df = filter_data_by_association(df, association)
+  total_distinct_users = len(filtered_df['user_id'].unique())
+  return total_distinct_users
+  
+def get_total_data_usage_by_association(jsonified_df, association):
+  df = decode_json_df(jsonified_df)
+  filtered_df = filter_data_by_association(df, association)
+  total_data_usage = round(filtered_df['size_in_mb'].sum(), 2)
+  return str(total_data_usage) + " MB"
