@@ -2,7 +2,7 @@ from cloud import session
 
 admin_queries = {
   'logins_over_time': session.prepare('''
-  SELECT status, association, CAST(login_time AS text) as date, user_id
+  SELECT status, association, CAST(login_time AS text) as date, user_id, new_user
   FROM user_by_activity 
   WHERE month = ?;'''),
   

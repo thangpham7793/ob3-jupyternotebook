@@ -195,3 +195,15 @@ def get_total_data_usage_by_association(jsonified_df, association):
   filtered_df = filter_data_by_association(df, association)
   total_data_usage = round(filtered_df['size_in_mb'].sum(), 2)
   return str(total_data_usage) + " MB"
+
+def get_total_new_users_sessions_by_association(jsonified_df, association):
+  df = decode_json_df(jsonified_df)
+  filtered_df = filter_data_by_association(df, association)
+  total_new_users = len(filtered_df[filtered_df['new_user'] == True])
+  return total_new_users
+  
+def get_total_resources_by_association(jsonified_df, association):
+  df = decode_json_df(jsonified_df)
+  filtered_df = filter_data_by_association(df, association)
+  total_resources = len(filtered_df)
+  return total_resources

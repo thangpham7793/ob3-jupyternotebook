@@ -75,35 +75,40 @@ app.layout = html.Div([
   ),
   html.Hr(),
   html.Div([
+  
     html.Div(
-        [html.H6(id="total-logins"), html.P("Login Count")],
+        [html.H6(id="total-distinct-users"), html.P("Distinct Users")],
+        id="distinct-users",
+        className="stat-container",
+    ),
+    
+    html.Div(
+        [html.H6(id="total-logins"), html.P("Login Sessions")],
         id="logins",
         className="stat-container",
     ),
+
     html.Div(
-        [html.H6(id="total-distinct-users"), html.P("Distinct Users")],
-        id="users",
+        [html.H6(id="total-new-users-sessions"), html.P("Sessions By New Users")],
+        id="new-users",
         className="stat-container",
     ),
-    html.Div(
-        [html.H6(id="total-new-docs"), html.P("New Documents")],
-        id="documents",
-        className="stat-container",
-    ),
-    html.Div(
-        [html.H6(id="total-new-discussions"), html.P("New Discussions")],
-        id="discussion",
-        className="stat-container",
-    ),
+
     html.Div(
         [html.H6(id="total-data-usage"), html.P("Data Usage")],
         id="data",
+        className="stat-container",
+    ),
+
+    html.Div(
+        [html.H6(id="total-new-resources"), html.P("New Resources")],
+        id="resources",
         className="stat-container",
     )
   ],
   className="stat-box-container",
 ),
-  #NOTE: container for highlight stats, user_activity_graph and status and association filters
+  #NOTE: container for user-activity graph and filters
   html.Div([
     #NOTE: highlight boxes
     
@@ -146,7 +151,8 @@ app.layout = html.Div([
     ),
 
     dcc.Graph(id='user_activity_graph')
-  ]),
+  ]
+  ),
   
   html.Hr(),
   html.Div([
@@ -161,7 +167,8 @@ app.layout = html.Div([
       ],
     ),
     dcc.Graph(id='data_usage_graph')
-  ]),
+  ]
+  ),
 
   html.Hr(),
   #NOTE: hidden container for storing jsonified login data
@@ -334,12 +341,30 @@ def display_total_distinct_users_by_association(jsonified_df, association):
   return chart_helper.get_total_distinct_users_by_association(jsonified_df, association)
 
 @app.callback(
+  Output('total-new-users-sessions', 'children'),
+  [Input('jsonified-login-df', 'children'), 
+   Input('association-filter', 'value')]
+)
+def display_total_new_users_sessions_by_association(jsonified_df, association):
+  return chart_helper.get_total_new_users_sessions_by_association(jsonified_df, association)
+
+@app.callback(
   Output('total-data-usage', 'children'),
   [Input('jsonified-data-usage-df', 'children'), 
    Input('association-filter', 'value')]
 )
 def display_total_distinct_users_by_association(jsonified_df, association):
   return chart_helper.get_total_data_usage_by_association(jsonified_df, association)
+
+@app.callback(
+  Output('total-new-resources', 'children'),
+  [Input('jsonified-data-usage-df', 'children'), 
+   Input('association-filter', 'value')]
+)
+def display_total_new_resources_by_association(jsonified_df, association):
+  return chart_helper.get_total_resources_by_association(jsonified_df, association)
+
+
 
 #NOTE: run app in debug mode
 if __name__ == '__main__':
