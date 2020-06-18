@@ -29,14 +29,22 @@ app.layout = html.Div([
   html.Div([
     #NOTE: company logo
     html.Div([
-      html.H2('logo here')
-    ]),
+      html.Img(src='assets/statistics.svg', className='logo')
+    ],
+    className='logo-container'
+    ),
     #NOTE: title
     html.Div([
-      html.H1('Admin Dashboard')
-    ]),
+      html.H1('OB3 Admin Dashboard')
+    ],
+    className='title-container'
+    ),
     #NOTE: external link
-    html.Div([html.H2('External link')])
+    html.Div([
+      html.A('External link', href='#')
+    ],
+    className='link-container'
+    )
   ],
   className='header-container'
   ),
@@ -53,11 +61,11 @@ app.layout = html.Div([
         options=[{'label': i, 'value': i} for i in ['none', 'uniA', 'uniB', 'uniC']],
         value='none',
       )    
-    ],
-    style={'width': '48%'}
+    ]
     ),
 
     html.Div([
+      html.P('Month'),
       dcc.Slider(
         id='month-slider',
         min=1,
@@ -66,12 +74,11 @@ app.layout = html.Div([
         marks={str(i): str(i) for i in [1,2,3,4,5,6,7,8,9,10,11,12]},
         step=None
       )
-    ],
-    style={'width': '48%'}
+    ]
     )
   #NOTE: end of general filter container
   ],
-  className='month-slider-container'
+  className='general-filter-container'
   ),
   html.Hr(),
   html.Div([
