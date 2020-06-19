@@ -18,6 +18,20 @@ import json
 import datetime
 
 #helper functions
+month_dict = {
+  'January': 1,
+ 'February': 2,
+  'March': 3,
+  'April': 4,
+  'May': 5,
+  'June': 6,
+  'July': 7,
+  'August': 8,
+  'September': 9,
+  'October': 10,
+  'November': 11,
+  'December': 12
+}
 
 
 #external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
@@ -29,7 +43,7 @@ app.layout = html.Div([
   html.Div([
     #NOTE: company logo
     html.Div([
-      html.Img(src='assets/statistics.svg', className='logo')
+      html.Img(src='assets/paper.png', className='logo')
     ],
     className='logo-container'
     ),
@@ -41,143 +55,130 @@ app.layout = html.Div([
     ),
     #NOTE: external link
     html.Div([
-      html.A('External link', href='#')
+      html.A('Learn More', href='https://www.ob3.io/', target='_blank')
     ],
     className='link-container'
     )
   ],
   className='header-container'
   ),
-  html.Hr(),
 
-  #NOTE: month-slider-container
+  #NOTE: general filter container
   html.Div([ 
-    #NOTE: container for general filters
-    #NOTE: association
     html.Div([
-      html.P('Association'),
       dcc.Dropdown(
         id='association-filter',
-        options=[{'label': i, 'value': i} for i in ['none', 'uniA', 'uniB', 'uniC']],
-        value='none',
+        options=[{'label': i, 'value': i} for i in ['uniA', 'uniB', 'uniC']],
+        placeholder='Select Association'
       )    
     ]
     ),
 
     html.Div([
-      html.P('Month'),
-      dcc.Slider(
-        id='month-slider',
-        min=1,
-        max=12,
-        value=1,
-        marks={str(i): str(i) for i in [1,2,3,4,5,6,7,8,9,10,11,12]},
-        step=None
+      dcc.Dropdown(
+        id='month-filter',
+        options=[{'label': key, 'value': month_dict[key]} for key in month_dict.keys()],
+        clearable=False,
+        value=1
       )
-    ]
-    )
-  #NOTE: end of general filter container
+    ],
+    ),
   ],
   className='general-filter-container'
   ),
-  html.Hr(),
+  
+
   html.Div([
   
     html.Div(
-        [html.H6(id="total-distinct-users"), html.P("Distinct Users")],
+        [html.H2(id="total-distinct-users"), html.H4("Distinct Users")],
         id="distinct-users",
         className="stat-container",
     ),
     
     html.Div(
-        [html.H6(id="total-logins"), html.P("Login Sessions")],
+        [html.H2(id="total-logins"), html.H4("Login Sessions")],
         id="logins",
         className="stat-container",
     ),
 
     html.Div(
-        [html.H6(id="total-new-users-sessions"), html.P("Sessions By New Users")],
+        [html.H2(id="total-new-users-sessions"), html.H4("Sessions By New Users")],
         id="new-users",
         className="stat-container",
     ),
 
     html.Div(
-        [html.H6(id="total-data-usage"), html.P("Data Usage")],
+        [html.H2(id="total-data-usage"), html.H4("MB Data Usage")],
         id="data",
         className="stat-container",
     ),
 
     html.Div(
-        [html.H6(id="total-new-resources"), html.P("New Resources")],
+        [html.H2(id="total-new-resources"), html.H4("New Resources")],
         id="resources",
         className="stat-container",
     )
   ],
   className="stat-box-container",
-),
-  #NOTE: container for user-activity graph and filters
-  html.Div([
-    #NOTE: highlight boxes
-    
-    
-    #NOTE: status
-    html.Div([
-      html.P('Status'),
-      dcc.RadioItems(
-        id='login-chart-status-filter',
-        options=[{'label': i, 'value': i} for i in ['none', 'student', 'teacher', 'alumnus']],
-        value='none',
-        labelStyle={'display' : 'inline-block'}
-      )
-    ],
-    style={'width': '48%'}
-    ),
-
-    html.Div([
-      html.P('Frequency'),
-      dcc.RadioItems(
-        id='login-chart-frequency-filter',
-        options=[{'label': i, 'value': i} for i in ['daily', 'weekly']],
-        value='daily',
-        labelStyle={'display' : 'inline-block'}
-      )
-    ],
-    style={'width': '48%'}
-    ),
-    
-    html.Div([
-      html.P('Chart Type'),
-      dcc.RadioItems(
-        id='login-chart-chart-type-filter',
-        options=[{'label': i, 'value': i} for i in ['bar', 'line', 'scatter']],
-        value='none',
-        labelStyle={'display' : 'inline-block'}
-      )
-    ],
-    style={'width': '48%'}
-    ),
-
-    dcc.Graph(id='user_activity_graph')
-  ]
   ),
   
-  html.Hr(),
+  #NOTE: login-chart-filter-container
+
+  html.Div([
+    #NOTE: status
+    html.Div([
+      dcc.Dropdown(
+        id='login-chart-status-filter',
+        options=[{'label': i, 'value': i} for i in ['student', 'teacher', 'alumnus']],
+        placeholder='Select Status'
+      )
+    ]),
+
+    html.Div([
+      dcc.Dropdown(
+        id='login-chart-frequency-filter',
+        options=[{'label': i, 'value': i} for i in ['Daily', 'Weekly']],
+        value='Daily',
+        clearable=False,
+      )
+    ]),
+    
+    html.Div([
+      dcc.Dropdown(
+        id='login-chart-chart-type-filter',
+        options=[{'label': i, 'value': i} for i in ['Bar Chart', 'Line Chart', 'Scatter Chart']],
+        value='Bar Chart',
+        clearable=False,
+      )
+    ])
+  ],
+  className='login-chart-filter-container'
+  ),
+  
+  html.Div([
+    dcc.Graph(id='user_activity_graph'),
+  ],
+  className='user-activity-graph-container'),
+  
   html.Div([
     #NOTE: course filter
     html.Div(id='data-chart-course-filter-container', 
       children=[
-        html.P('Filter by Course'),
-        dcc.RadioItems(
+        dcc.Dropdown(
           id='data-chart-course-filter',
-          value='none',
-          labelStyle={'display' : 'inline-block'})
-      ],
-    ),
-    dcc.Graph(id='data_usage_graph')
-  ]
+          placeholder='Select A Course'
+        )
+      ])   
+  ],
+  className='data-chart-filter-container'
   ),
+  
+  html.Div([
+    dcc.Graph(id='data_usage_graph'),
+  ],
+  className='data-usage-graph-container'),
 
-  html.Hr(),
   #NOTE: hidden container for storing jsonified login data
   html.Div(id='jsonified-login-df', style={'display': 'none'}),
   html.Div(id='jsonified-data-usage-df', style={'display' : 'none'})
@@ -188,7 +189,7 @@ app.layout = html.Div([
 #NOTE: refetch login data when a new month is picked
 @app.callback(
   Output('jsonified-login-df', 'children'),
-  [Input('month-slider', 'value')])
+  [Input('month-filter', 'value')])
 def get_and_store_login_data(selected_month):
   rows = session.execute(admin_queries['logins_over_time'], [selected_month])
   df = DataFrame(rows)
@@ -196,7 +197,7 @@ def get_and_store_login_data(selected_month):
 
 @app.callback(
   Output('jsonified-data-usage-df', 'children'),
-  [Input('month-slider', 'value')])
+  [Input('month-filter', 'value')])
 def get_and_store_usage_data(selected_month):
   rows = session.execute(admin_queries['data_usage_by_month'], [selected_month])
   df = DataFrame(rows)
@@ -204,36 +205,36 @@ def get_and_store_usage_data(selected_month):
   return df.to_json(date_format='iso')
 
 #NOTE: reset status filter on month change
-@app.callback(
-  [Output('login-chart-status-filter', 'value')], 
-  [Input('month-slider', 'value')]
-)
-def reset_login_chart_status_filter(selected_month):
-  return ['none']
+#@app.callback(
+ # [Output('login-chart-status-filter', 'value')], 
+  #[Input('month-slider', 'value')]
+#)
+# def reset_login_chart_status_filter(selected_month):
+  #return None #does it change to placeholder with NONE, or do you just need to let the thing refresh?
 
 #NOTE: reset association filter on month change
-@app.callback(
-  [Output('association-filter', 'value')], 
-  [Input('month-slider', 'value')]
-)
-def reset_login_chart_association_filter(selected_month):
-  return ['none']
+#@app.callback(
+ # [Output('association-filter', 'value')], 
+ # [Input('month-slider', 'value')]
+#)
+# def reset_login_chart_association_filter(selected_month):
+ # return ['none']
 
 #NOTE: reset chart type filter on month change
-@app.callback(
-  [Output('login-chart-chart-type-filter', 'value')], 
-  [Input('month-slider', 'value')]
-)
-def reset_login_chart_chart_type_filter(selected_month):
-  return ['bar']
+#@app.callback(
+ # [Output('login-chart-chart-type-filter', 'value')], 
+  #[Input('month-slider', 'value')]
+#)
+# def reset_login_chart_chart_type_filter(selected_month):
+  #return ['bar']
 
 #NOTE: reset frequency filter on month change
-@app.callback(
-  Output('login-chart-frequency-filter', 'value'),
-  [Input('month-slider', 'value')]
-)
-def reset_login_chart_frequency_filter(selected_month):
-  return 'daily'
+#@app.callback(
+ # Output('login-chart-frequency-filter', 'value'),
+  #[Input('month-slider', 'value')]
+#)
+# def reset_login_chart_frequency_filter(selected_month):
+  #return 'daily'
 
 #NOTE: update login chart on new filter
 @app.callback(
@@ -243,7 +244,7 @@ def reset_login_chart_frequency_filter(selected_month):
    Input('login-chart-status-filter', 'value'),
    Input('login-chart-chart-type-filter', 'value'),
    Input('login-chart-frequency-filter', 'value')],
-  [State('month-slider', 'value')]
+  [State('month-filter', 'value')]
 )
 def update_login_chart_on_filter_change(jsonified_login_df, association, status, chart_type, frequency, month):
   if jsonified_login_df is None:
@@ -252,8 +253,8 @@ def update_login_chart_on_filter_change(jsonified_login_df, association, status,
   else:
     df = chart_helper.decode_json_df(jsonified_login_df)
     #print(df.head())
-    if (association == 'none'):
-      if (status == 'none'):
+    if (association == None):
+      if (status == None):
         fig = chart_helper.make_login_chart(df, month, frequency=frequency[0], chart_type=chart_type)
         #print(fig.data)
         return fig
@@ -262,7 +263,7 @@ def update_login_chart_on_filter_change(jsonified_login_df, association, status,
         #print(fig.data)
         return fig
     else:
-      if (status == 'none'):
+      if (status == None):
         fig = chart_helper.make_login_chart(df, month, association=association, frequency=frequency[0], chart_type=chart_type)
         #print(fig.data)
         return fig
@@ -292,19 +293,19 @@ def update_data_chart_course_filter(association, jsonified_data_usage_df):
   [State('jsonified-data-usage-df', 'children')]
 )
 def update_data_chart_course_filter(association, jsonified_data_usage_df):
-  if (jsonified_data_usage_df is None) or (association == 'none'):
+  if (jsonified_data_usage_df is None) or (association == None):
     return {'display' : 'none'}
   else:
     return {'display' : 'block'}
 
 
 #NOTE: set default value for newly created options
-@app.callback(
-  Output('data-chart-course-filter', 'value'),
-  [Input('data-chart-course-filter', 'options')]
-)
-def set_default_course_filter(options):
-  return 'none'
+#@app.callback(
+ # Output('data-chart-course-filter', 'value'),
+ # [Input('data-chart-course-filter', 'options')]
+#)
+# def set_default_course_filter(options):
+  #return 'none'
 
 #NOTE: update usage chart on new filter
 @app.callback(
@@ -312,14 +313,15 @@ def set_default_course_filter(options):
   [Input('jsonified-data-usage-df', 'children'),
    Input('association-filter', 'value'),
    Input('data-chart-course-filter', 'value')],
-  [State('month-slider', 'value')]
+  [State('month-filter', 'value')]
 )
-def update_file_usage_chart(jsonified_data_usage_df, association='none', course_id='none', month='none'):
+def update_file_usage_chart(jsonified_data_usage_df, association=None, course_id=None, month=None):
     df = chart_helper.decode_json_df(jsonified_data_usage_df)
-    if (course_id == 'none') & (association == 'none'):
+  
+    if (course_id == None) & (association == None):
         fig = chart_helper.make_aggregate_data_usage_chart(df, association, course_id, month)
         return fig
-    elif (association != 'none') & (course_id == 'none'):
+    elif (association != None) & (course_id == None):
         filtered_df = df[df['association'] == association]
         fig = chart_helper.make_data_bar_chart_facetted_by(filtered_df, 'course_id', association, course_id, month)
         return fig
@@ -378,9 +380,5 @@ if __name__ == '__main__':
   app.run_server(debug=True)
 
 
-#TODO: add highlight boxes + arrange a nice layout
-#distinct users remain 10 due to dummy data!
-#the stats should correspond to each institution as well (ongoing)
-#need to add discussions/documents to data_usage_chart???
-#should fix the bar chart to be more clear....
+#TODO: https://dash.plotly.com/deployment try to deploy
 

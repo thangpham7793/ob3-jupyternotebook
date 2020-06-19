@@ -3,6 +3,22 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 
+month_dict = {
+  'January': 1,
+ 'February': 2,
+  'March': 3,
+  'April': 4,
+  'May': 5,
+  'June': 6,
+  'July': 7,
+  'August': 8,
+  'September': 9,
+  'October': 10,
+  'November': 11,
+  'December': 12
+}
+
+
 app = dash.Dash(__name__)
 
 app.layout = html.Div([
@@ -10,7 +26,7 @@ app.layout = html.Div([
   html.Div([
     #NOTE: company logo
     html.Div([
-      html.Img(src='assets/statistics.svg', className='logo')
+      html.Img(src='assets/paper.png', className='logo')
     ],
     className='logo-container'
     ),
@@ -22,149 +38,137 @@ app.layout = html.Div([
     ),
     #NOTE: external link
     html.Div([
-      html.A('External link', href='#')
+      html.A('Learn More', href='https://www.ob3.io/', target='_blank')
     ],
     className='link-container'
     )
   ],
   className='header-container'
   ),
-  html.Hr(),
 
-  #NOTE: month-slider-container
+  #NOTE: general filter container
   html.Div([ 
-    #NOTE: container for general filters
-    #NOTE: association
     html.Div([
-      html.P('Association'),
       dcc.Dropdown(
         id='association-filter',
-        options=[{'label': i, 'value': i} for i in ['none', 'uniA', 'uniB', 'uniC']],
-        value='none',
+        options=[{'label': i, 'value': i} for i in ['uniA', 'uniB', 'uniC']],
+        placeholder='Select Association'
       )    
     ]
     ),
 
     html.Div([
-      html.P('Month'),
-      dcc.Slider(
-        id='month-slider',
-        min=1,
-        max=12,
-        value=1,
-        marks={str(i): str(i) for i in [1,2,3,4,5,6,7,8,9,10,11,12]},
-        step=None
+      dcc.Dropdown(
+        id='month-filter',
+        options=[{'label': key, 'value': month_dict[key]} for key in month_dict.keys()],
+        clearable=False,
+        value=1
       )
-    ]
-    )
-  #NOTE: end of general filter container
+    ],
+    ),
   ],
   className='general-filter-container'
   ),
-  html.Hr(),
+  
+
   html.Div([
   
     html.Div(
-        [html.H6(id="total-distinct-users"), html.P("Distinct Users")],
+        [html.H2(id="total-distinct-users"), html.H4("Distinct Users")],
         id="distinct-users",
         className="stat-container",
     ),
     
     html.Div(
-        [html.H6(id="total-logins"), html.P("Login Sessions")],
+        [html.H2(id="total-logins"), html.H4("Login Sessions")],
         id="logins",
         className="stat-container",
     ),
 
     html.Div(
-        [html.H6(id="total-new-users-sessions"), html.P("Sessions By New Users")],
+        [html.H2(id="total-new-users-sessions"), html.H4("Sessions By New Users")],
         id="new-users",
         className="stat-container",
     ),
 
     html.Div(
-        [html.H6(id="total-data-usage"), html.P("Data Usage")],
+        [html.H2(id="total-data-usage"), html.H4("MB Data Usage")],
         id="data",
         className="stat-container",
     ),
 
     html.Div(
-        [html.H6(id="total-new-resources"), html.P("New Resources")],
+        [html.H2(id="total-new-resources"), html.H4("New Resources")],
         id="resources",
         className="stat-container",
     )
   ],
   className="stat-box-container",
-),
-  #NOTE: container for user-activity graph and filters
-  html.Div([
-    #NOTE: highlight boxes
-    
-    
-    #NOTE: status
-    html.Div([
-      html.P('Status'),
-      dcc.RadioItems(
-        id='login-chart-status-filter',
-        options=[{'label': i, 'value': i} for i in ['none', 'student', 'teacher', 'alumnus']],
-        value='none',
-        labelStyle={'display' : 'inline-block'}
-      )
-    ],
-    style={'width': '48%'}
-    ),
-
-    html.Div([
-      html.P('Frequency'),
-      dcc.RadioItems(
-        id='login-chart-frequency-filter',
-        options=[{'label': i, 'value': i} for i in ['daily', 'weekly']],
-        value='daily',
-        labelStyle={'display' : 'inline-block'}
-      )
-    ],
-    style={'width': '48%'}
-    ),
-    
-    html.Div([
-      html.P('Chart Type'),
-      dcc.RadioItems(
-        id='login-chart-chart-type-filter',
-        options=[{'label': i, 'value': i} for i in ['bar', 'line', 'scatter']],
-        value='none',
-        labelStyle={'display' : 'inline-block'}
-      )
-    ],
-    style={'width': '48%'}
-    ),
-
-    dcc.Graph(id='user_activity_graph')
-  ]
   ),
   
-  html.Hr(),
+  #NOTE: login-chart-filter-container
+
+  html.Div([
+    #NOTE: status
+    html.Div([
+      dcc.Dropdown(
+        id='login-chart-status-filter',
+        options=[{'label': i, 'value': i} for i in ['student', 'teacher', 'alumnus']],
+        placeholder='Select Status'
+      )
+    ]),
+
+    html.Div([
+      dcc.Dropdown(
+        id='login-chart-frequency-filter',
+        options=[{'label': i, 'value': i} for i in ['Daily', 'Weekly']],
+        value='Daily',
+        clearable=False,
+      )
+    ]),
+    
+    html.Div([
+      dcc.Dropdown(
+        id='login-chart-chart-type-filter',
+        options=[{'label': i, 'value': i} for i in ['Bar Chart', 'Line Chart', 'Scatter Chart']],
+        value='Bar Chart',
+        clearable=False,
+      )
+    ])
+  ],
+  className='login-chart-filter-container'
+  ),
+  
+  html.Div([
+    dcc.Graph(id='user_activity_graph'),
+  ],
+  className='user-activity-graph-container'),
+  
   html.Div([
     #NOTE: course filter
     html.Div(id='data-chart-course-filter-container', 
       children=[
-        html.P('Filter by Course'),
-        dcc.RadioItems(
+        dcc.Dropdown(
           id='data-chart-course-filter',
-          value='none',
-          labelStyle={'display' : 'inline-block'})
-      ],
-    ),
-    dcc.Graph(id='data_usage_graph')
-  ]
+          placeholder='Select A Course'
+        )
+      ])   
+  ],
+  className='data-chart-filter-container'
   ),
+  
+  html.Div([
+    dcc.Graph(id='data_usage_graph'),
+  ],
+  className='data-usage-graph-container'),
 
-  html.Hr(),
   #NOTE: hidden container for storing jsonified login data
   html.Div(id='jsonified-login-df', style={'display': 'none'}),
   html.Div(id='jsonified-data-usage-df', style={'display' : 'none'})
 ],
   className='main-container'
 )
+
 
 #NOTE: run app in debug mode
 if __name__ == '__main__':

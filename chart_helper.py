@@ -82,6 +82,7 @@ def make_login_chart_title(month, association=None, status=None):
     return uppercase_first_letter_in_title(title)
 
 def make_login_chart(df, month=None, association=None, status=None, frequency='d', chart_type='bar'):
+
   data = filters_for_login_chart(df, association, status)
   
   total_logins_by_frequency = data.set_index('date').resample(frequency).count().reset_index()
@@ -90,7 +91,7 @@ def make_login_chart(df, month=None, association=None, status=None, frequency='d
   
   title = make_login_chart_title(month, association, status)
 
-  if chart_type == 'bar':
+  if 'Bar' in chart_type:
       fig = px.bar(total_logins_by_frequency, 
               x = 'date', 
               y = 'number of logins', 
@@ -100,8 +101,11 @@ def make_login_chart(df, month=None, association=None, status=None, frequency='d
               range_color=[0, total_logins_by_frequency['number of logins'].max()],
               title=title)
       fig.update_xaxes(rangeslider_visible=True)
+      fig.update_layout(showlegend=False)
+      #NOTE: hide color bar https://github.com/plotly/plotly.py/issues/1858
+      fig.layout.coloraxis.showscale=False
       return fig
-  elif chart_type == 'scatter':
+  elif 'Scatter' in chart_type:
       fig = px.scatter(total_logins_by_frequency, 
               x = 'date', 
               y = 'number of logins', 
@@ -111,8 +115,9 @@ def make_login_chart(df, month=None, association=None, status=None, frequency='d
               range_color=[0, total_logins_by_frequency['number of logins'].max()],
               title=title)
       fig.update_xaxes(rangeslider_visible=True)
+      fig.layout.coloraxis.showscale=False
       return fig
-  elif chart_type == 'line':
+  elif 'Line' in chart_type:
       fig = px.line(total_logins_by_frequency, 
               x = 'date', 
               y = 'number of logins', 
@@ -123,13 +128,13 @@ def make_login_chart(df, month=None, association=None, status=None, frequency='d
 def make_data_usage_chart_title(association, course_id, month):
   title_template = Template('${association}${course_id}Data Usage in $month ${category}')
   month=str(month)
-  if (association == 'none') & (course_id == 'none'):
+  if (association == None) & (course_id == None):
     title = title_template.substitute(association='', course_id='', category='by institution', month=month_dict[month])
     return uppercase_first_letter_in_title(title)
-  elif (association != 'none') & (course_id == 'none'):
+  elif (association != None) & (course_id == None):
     title = title_template.substitute(association=association + ' ', course_id='', category='by course', month=month_dict[month])
     return uppercase_first_letter_in_title(title)
-  elif (association != 'none') & (course_id != 'none'):
+  elif (association != None) & (course_id != None):
     title = title_template.substitute(association=association + ' ', course_id=course_id + ' ', category='by paper', month=month_dict[month])
     return uppercase_first_letter_in_title(title)
   else: 
@@ -146,6 +151,8 @@ def make_aggregate_data_usage_chart(df, association=None, course_id=None, month=
       hover_name='course_id', 
       labels={'size_in_mb' : 'Size in MB'},
       title=title)
+  #remove vertical annotations
+  fig.layout.annotations=None
   return fig
 
 def make_data_bar_chart_facetted_by(df, colname, association=None, course_id=None, month=None):
@@ -153,27 +160,27 @@ def make_data_bar_chart_facetted_by(df, colname, association=None, course_id=Non
   fig = px.bar(df, 
           x=colname, y='size_in_mb',
           color='type',
-          color_discrete_sequence=['blue', 'orange', 'green', 'red'],
           hover_name='type', 
           hover_data = {'paper_id' : False, 'type' : False, 'course_id' : False},
           barmode='group', 
           labels={'size_in_mb': 'Size in MB'}, 
           facet_row=colname,
           title=title)
+  fig.layout.annotations=None
   return fig
 
 def get_course_filter_options(df, association):
   filtered_df = df[df['association'] == association]
   unique_vals = filtered_df['course_id'].unique()
   options = [{'label': i, 'value': i} for i in unique_vals]
-  options = [{'label': 'none', 'value' : 'none'}] + options
+  #options = [{'label': 'none', 'value' : 'none'}] + options
   return options
 
 #ANCHOR: helpers for stat boxes
 
 #NOTE: return filtered df for login stat boxes
-def filter_data_by_association(df, association='none'):
-    if (association == 'none'): 
+def filter_data_by_association(df, association=None):
+    if (association == None): 
         return df
     else:
         return df[df['association'] == association]
@@ -194,7 +201,7 @@ def get_total_data_usage_by_association(jsonified_df, association):
   df = decode_json_df(jsonified_df)
   filtered_df = filter_data_by_association(df, association)
   total_data_usage = round(filtered_df['size_in_mb'].sum(), 2)
-  return str(total_data_usage) + " MB"
+  return str(total_data_usage)
 
 def get_total_new_users_sessions_by_association(jsonified_df, association):
   df = decode_json_df(jsonified_df)
