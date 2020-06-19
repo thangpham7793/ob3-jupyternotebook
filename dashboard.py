@@ -201,40 +201,8 @@ def get_and_store_login_data(selected_month):
 def get_and_store_usage_data(selected_month):
   rows = session.execute(admin_queries['data_usage_by_month'], [selected_month])
   df = DataFrame(rows)
-  #print(df.to_json(date_format='iso'))
   return df.to_json(date_format='iso')
 
-#NOTE: reset status filter on month change
-#@app.callback(
- # [Output('login-chart-status-filter', 'value')], 
-  #[Input('month-slider', 'value')]
-#)
-# def reset_login_chart_status_filter(selected_month):
-  #return None #does it change to placeholder with NONE, or do you just need to let the thing refresh?
-
-#NOTE: reset association filter on month change
-#@app.callback(
- # [Output('association-filter', 'value')], 
- # [Input('month-slider', 'value')]
-#)
-# def reset_login_chart_association_filter(selected_month):
- # return ['none']
-
-#NOTE: reset chart type filter on month change
-#@app.callback(
- # [Output('login-chart-chart-type-filter', 'value')], 
-  #[Input('month-slider', 'value')]
-#)
-# def reset_login_chart_chart_type_filter(selected_month):
-  #return ['bar']
-
-#NOTE: reset frequency filter on month change
-#@app.callback(
- # Output('login-chart-frequency-filter', 'value'),
-  #[Input('month-slider', 'value')]
-#)
-# def reset_login_chart_frequency_filter(selected_month):
-  #return 'daily'
 
 #NOTE: update login chart on new filter
 @app.callback(
@@ -288,24 +256,16 @@ def update_data_chart_course_filter(association, jsonified_data_usage_df):
 
 #NOTE: display/hide course filter
 @app.callback(
-  Output('data-chart-course-filter-container', 'style'),
+  Output('data-chart-course-filter', 'disabled'),
   [Input('association-filter', 'value')],
   [State('jsonified-data-usage-df', 'children')]
 )
 def update_data_chart_course_filter(association, jsonified_data_usage_df):
   if (jsonified_data_usage_df is None) or (association == None):
-    return {'display' : 'none'}
+    return True
   else:
-    return {'display' : 'block'}
-
-
-#NOTE: set default value for newly created options
-#@app.callback(
- # Output('data-chart-course-filter', 'value'),
- # [Input('data-chart-course-filter', 'options')]
-#)
-# def set_default_course_filter(options):
-  #return 'none'
+    return False
+    
 
 #NOTE: update usage chart on new filter
 @app.callback(
@@ -380,5 +340,5 @@ if __name__ == '__main__':
   app.run_server(debug=True)
 
 
-#TODO: https://dash.plotly.com/deployment try to deploy
+#TODO: https://dash.plotly.com/deployment try to deploy / polish display
 
